@@ -1,4 +1,4 @@
-import rootReducer from '@/features'
+import rootReducer from '@/app/reducer'
 import { Action, ThunkAction, configureStore } from '@reduxjs/toolkit'
 import { createWrapper } from 'next-redux-wrapper'
 
