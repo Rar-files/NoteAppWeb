@@ -1,6 +1,9 @@
 import useApiRequest from '@/app/hooks/useApiRequest'
-import { setAuthTokenError, setAuthTokenSuccess } from '@/app/reducer/authSlice'
-import { FC } from 'react'
+import {
+    setAuthTokenError,
+    setAuthTokenAuthorized,
+} from '@/app/reducer/authSlice'
+import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 
@@ -12,11 +15,15 @@ export type IFormSignup = {
 }
 
 const Signup: FC = () => {
+    const [userExist, setUserExist] = useState(false)
+
     const dispatch = useDispatch()
     const request = useApiRequest()
     const { handleSubmit, register } = useForm<IFormSignup>()
 
     const onSignup = (data: IFormSignup) => {
+        if (userExist) return
+
         request('POST', '/Auth/Local/Signup', data)
             .then((response) => {
                 if (!response.ok) {
@@ -27,15 +34,29 @@ const Signup: FC = () => {
                 }
 
                 response.json().then((data) => {
-                    dispatch(setAuthTokenSuccess(data.token))
+                    dispatch(setAuthTokenAuthorized(data.token))
                 })
             })
-            .catch((error) => console.log(error))
+            .catch((error) => {
+                if (error == 'User with this email already exists') {
+                    setUserExist(true)
+                    return
+                }
+            })
+    }
+
+    const clearUserExist = () => {
+        if (userExist) setUserExist(false)
     }
 
     return (
         <form onSubmit={handleSubmit(onSignup)}>
-            <input type="email" placeholder="Email" {...register('email')} />
+            <input
+                type="email"
+                placeholder="Email"
+                {...register('email')}
+                onChange={clearUserExist}
+            />
             <input
                 type="password"
                 placeholder="Password"
@@ -52,6 +73,11 @@ const Signup: FC = () => {
                 {...register('lastName')}
             />
             <button type="submit">Signup</button>
+            {userExist && (
+                <div style={{ color: 'red' }}>
+                    User with this email already exists, please login.
+                </div>
+            )}
         </form>
     )
 }

@@ -1,6 +1,9 @@
 import useApiRequest from '@/app/hooks/useApiRequest'
-import { setAuthTokenError, setAuthTokenSuccess } from '@/app/reducer/authSlice'
-import { FC } from 'react'
+import {
+    setAuthTokenError,
+    setAuthTokenAuthorized,
+} from '@/app/reducer/authSlice'
+import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 
@@ -10,32 +13,55 @@ export type IFormLogin = {
 }
 
 const Login: FC = () => {
+    const [formError, setFormError] = useState('')
+
     const dispatch = useDispatch()
     const request = useApiRequest()
     const { handleSubmit, register } = useForm<IFormLogin>()
 
     const onLogin = (data: IFormLogin) => {
+        if (formError) return
+
         request('POST', '/Auth/Local/Login', data).then((response) => {
-            if (response.status !== 200) {
+            if (!response.ok) {
                 dispatch(setAuthTokenError())
+                if (response.status === 401) {
+                    setFormError('Wrong password')
+                    return
+                }
+                if (response.status === 404) {
+                    setFormError('User not found, please signin.')
+                    return
+                }
                 return
             }
 
             response.json().then((data) => {
-                dispatch(setAuthTokenSuccess(data.token))
+                dispatch(setAuthTokenAuthorized(data.token))
             })
         })
     }
 
+    const clearFormError = () => {
+        if (formError) setFormError('')
+    }
+
     return (
         <form onSubmit={handleSubmit(onLogin)}>
-            <input type="email" placeholder="Email" {...register('email')} />
+            <input
+                type="email"
+                placeholder="Email"
+                {...register('email')}
+                onChange={clearFormError}
+            />
             <input
                 type="password"
                 placeholder="Password"
                 {...register('password')}
+                onChange={clearFormError}
             />
-            <button type="submit">Signup</button>
+            <button type="submit">Login</button>
+            {formError && <div style={{ color: 'red' }}>{formError}</div>}
         </form>
     )
 }

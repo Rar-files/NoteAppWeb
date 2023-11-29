@@ -1,13 +1,21 @@
 import useApiRequest from '@/app/hooks/useApiRequest'
-import { selectAuthState } from '@/app/reducer/authSlice'
+import {
+    AuthStatus,
+    selectAuthState,
+    trySetAuthTokenFromCookie,
+} from '@/app/reducer/authSlice'
+import Login from '@/components/auth/Login'
+import LogoutBtn from '@/components/auth/LogoutBtn'
 import Signup from '@/components/auth/Signup'
 import type { NextPage } from 'next'
-import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 
 const Dashboard: NextPage = () => {
+    const [showLogin, setShowLogin] = useState(false)
     const authState = useSelector(selectAuthState)
     const apiRequest = useApiRequest()
+    const dispatch = useDispatch()
 
     const logExampleNote = () => {
         apiRequest('GET', '/User').then((res) => {
@@ -15,16 +23,31 @@ const Dashboard: NextPage = () => {
         })
     }
 
-    useEffect(() => {})
+    useEffect(() => {
+        if (authState.authStatus == AuthStatus.UNAUTHORIZED)
+            dispatch(trySetAuthTokenFromCookie())
+    })
+
     return (
         <div>
             <h1>Hello world!</h1>
-            <div>{authState.succeeded ? 'Logged in' : 'Not Logged In'}</div>
+            <div>
+                {authState.authStatus == AuthStatus.AUTHORIZED
+                    ? 'Logged in'
+                    : 'Not Logged In'}
+            </div>
 
-            <Signup />
+            <button onClick={() => setShowLogin(!showLogin)}>
+                {showLogin ? 'SignupForm' : 'LoginForm'}
+            </button>
 
-            {authState.succeeded && (
-                <button onClick={logExampleNote}>Log users</button>
+            {showLogin ? <Login /> : <Signup />}
+
+            {authState.authStatus == AuthStatus.AUTHORIZED && (
+                <div>
+                    <LogoutBtn />
+                    <button onClick={logExampleNote}>Log users</button>
+                </div>
             )}
         </div>
     )
