@@ -1,9 +1,6 @@
 import useApiRequest from '@/app/hooks/useApiRequest'
-import {
-    AuthStatus,
-    selectAuthState,
-    trySetAuthTokenFromCookie,
-} from '@/app/reducer/authSlice'
+import { selectAuthState, trySetAuthTokenFromLS } from '@/app/reducer/authSlice'
+import { clearUser, selectUserState, setUser } from '@/app/reducer/userSlice'
 import Login from '@/components/auth/Login'
 import LogoutBtn from '@/components/auth/LogoutBtn'
 import Signup from '@/components/auth/Signup'
@@ -14,42 +11,58 @@ import { useDispatch, useSelector } from 'react-redux'
 const Dashboard: NextPage = () => {
     const [showLogin, setShowLogin] = useState(false)
     const authState = useSelector(selectAuthState)
-    const apiRequest = useApiRequest()
+    const userState = useSelector(selectUserState)
+    const request = useApiRequest()
     const dispatch = useDispatch()
 
     const logExampleNote = () => {
-        apiRequest('GET', '/User').then((res) => {
+        request('GET', '/User').then((res) => {
             res.json().then((data) => console.log(data))
         })
     }
 
     useEffect(() => {
-        if (authState.authStatus == AuthStatus.UNAUTHORIZED)
-            dispatch(trySetAuthTokenFromCookie())
+        if (authState.authStatus == 'UNAUTHORIZED')
+            dispatch(trySetAuthTokenFromLS())
     })
 
+    if (authState.authStatus == 'AUTHORIZED') {
+        request('GET', '/User/Me').then((response) => {
+            if (!response.ok) {
+                dispatch(clearUser())
+                return
+            }
+
+            response.json().then((data) => {
+                dispatch(setUser(data))
+            })
+        })
+    }
+
     return (
-        <div>
-            <h1>Hello world!</h1>
-            <div>
-                {authState.authStatus == AuthStatus.AUTHORIZED
-                    ? 'Logged in'
-                    : 'Not Logged In'}
-            </div>
-
-            <button onClick={() => setShowLogin(!showLogin)}>
-                {showLogin ? 'SignupForm' : 'LoginForm'}
-            </button>
-
-            {showLogin ? <Login /> : <Signup />}
-
-            {authState.authStatus == AuthStatus.AUTHORIZED && (
+        <>
+            {authState.authStatus == 'AUTHORIZED' ? (
                 <div>
+                    <h1>
+                        {userState && (
+                            <div>
+                                {`Hello ${userState.firstName} ${userState.lastName}! You are logged in!`}
+                            </div>
+                        )}
+                    </h1>
                     <LogoutBtn />
                     <button onClick={logExampleNote}>Log users</button>
                 </div>
+            ) : (
+                <div>
+                    <button onClick={() => setShowLogin(!showLogin)}>
+                        {showLogin ? 'SignupForm' : 'LoginForm'}
+                    </button>
+
+                    {showLogin ? <Login /> : <Signup />}
+                </div>
             )}
-        </div>
+        </>
     )
 }
 

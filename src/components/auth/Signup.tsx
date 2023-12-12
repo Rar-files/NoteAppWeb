@@ -27,7 +27,6 @@ const Signup: FC = () => {
         request('POST', '/Auth/Local/Signup', data)
             .then((response) => {
                 if (!response.ok) {
-                    dispatch(setAuthTokenError())
                     return response.text().then((text) => {
                         throw new Error(text)
                     })
@@ -37,9 +36,10 @@ const Signup: FC = () => {
                     dispatch(setAuthTokenAuthorized(data.token))
                 })
             })
-            .catch((error) => {
-                if (error == 'User with this email already exists') {
+            .catch((error: Error) => {
+                if (error.message === 'User with this email already exists') {
                     setUserExist(true)
+                    dispatch(setAuthTokenError())
                     return
                 }
             })

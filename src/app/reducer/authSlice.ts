@@ -1,63 +1,88 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import { HYDRATE } from 'next-redux-wrapper'
 import { AppState } from '../store'
-import { getCookie, setCookie } from 'cookies-next'
+import ls from 'react-secure-storage'
 import { jwtDecode } from 'jwt-decode'
 
-export enum AuthStatus {
-    AUTHORIZED = 'AUTHORIZED',
-    ERROR = 'ERROR',
-    UNAUTHORIZED = 'UNAUTHORIZED',
-}
-
 export interface AuthState {
-    authStatus: AuthStatus
+    authStatus: 'AUTHORIZED' | 'ERROR' | 'UNAUTHORIZED'
     token: string
+    expTime: string
 }
 
 const initialState: AuthState = {
-    authStatus: AuthStatus.UNAUTHORIZED,
+    authStatus: 'UNAUTHORIZED',
     token: '',
+    expTime: new Date().toISOString(),
 }
 
-const setTokenToCookie = (token: string) => {
+interface IAuthLSItem {
+    token: string
+    expTime: string
+}
+
+const tokenToExpDate = (token: string) => {
     const jwtdecoded = jwtDecode(token)
     const expDate = new Date()
     expDate.setSeconds(expDate.getSeconds() + (jwtdecoded.exp as number))
-    setCookie('auth-token', token, {
-        secure: true,
-        httpOnly: true,
-        expires: expDate,
-    })
+    return expDate.toISOString()
 }
 
-const getTokenFromCookie = () => getCookie('auth-token')
+const setTokenToLocalStorage = (token: string) => {
+    let authLSItem: IAuthLSItem = {
+        token: '',
+        expTime: new Date().toISOString(),
+    }
+
+    if (token !== '')
+        authLSItem = {
+            token,
+            expTime: tokenToExpDate(token),
+        }
+
+    ls.setItem('auth-data', authLSItem)
+
+    return authLSItem
+}
+
+const getTokenFromLocalStorage = () => {
+    const lsValue = ls.getItem('auth-data')
+
+    if ((lsValue as IAuthLSItem).expTime == undefined) return ''
+
+    const authLSItem = lsValue as IAuthLSItem
+
+    if (new Date(authLSItem.expTime) < new Date()) return ''
+
+    return authLSItem
+}
 
 export const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        trySetAuthTokenFromCookie: (state) => {
-            const authCookie = getTokenFromCookie()
+        trySetAuthTokenFromLS: (state) => {
+            const authCookie = getTokenFromLocalStorage()
             if (authCookie) {
-                state.authStatus = AuthStatus.AUTHORIZED
-                state.token = authCookie
+                state.authStatus = 'AUTHORIZED'
+                state.token = authCookie.token
+                state.expTime = authCookie.expTime
             }
         },
-        setAuthTokenAuthorized: (state, action) => {
-            state.authStatus = AuthStatus.AUTHORIZED
+        setAuthTokenAuthorized: (state, action: PayloadAction<string>) => {
+            state.authStatus = 'AUTHORIZED'
             state.token = action.payload
-            setTokenToCookie(action.payload)
+            state.expTime = setTokenToLocalStorage(action.payload).expTime
         },
         setAuthTokenUnauthorized: (state) => {
-            state.authStatus = AuthStatus.UNAUTHORIZED
+            state.authStatus = 'UNAUTHORIZED'
             state.token = ''
-            setTokenToCookie('')
+            state.expTime = setTokenToLocalStorage('').expTime
         },
         setAuthTokenError: (state) => {
-            state.authStatus = AuthStatus.ERROR
+            state.authStatus = 'ERROR'
             state.token = ''
-            setTokenToCookie('')
+            state.expTime = setTokenToLocalStorage('').expTime
         },
     },
 
@@ -75,9 +100,9 @@ export const {
     setAuthTokenAuthorized,
     setAuthTokenUnauthorized,
     setAuthTokenError,
-    trySetAuthTokenFromCookie,
+    trySetAuthTokenFromLS,
 } = authSlice.actions
 
 export const selectAuthState = (state: AppState): AuthState => state.auth
 
-export default authSlice.reducer
+export default authSlice
