@@ -24,7 +24,7 @@ const Signup: FC = () => {
     const onSignup = (data: IFormSignup) => {
         if (userExist) return
 
-        request('POST', '/Auth/Local/Signup', data)
+        request('POST', '/auth/local/signup', data)
             .then((response) => {
                 if (!response.ok) {
                     return response.text().then((text) => {

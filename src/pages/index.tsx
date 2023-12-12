@@ -16,7 +16,7 @@ const Dashboard: NextPage = () => {
     const dispatch = useDispatch()
 
     const logExampleNote = () => {
-        request('GET', '/User').then((res) => {
+        request('GET', '/user').then((res) => {
             res.json().then((data) => console.log(data))
         })
     }
@@ -27,7 +27,7 @@ const Dashboard: NextPage = () => {
     })
 
     if (authState.authStatus == 'AUTHORIZED') {
-        request('GET', '/User/Me').then((response) => {
+        request('GET', '/user/me').then((response) => {
             if (!response.ok) {
                 dispatch(clearUser())
                 return

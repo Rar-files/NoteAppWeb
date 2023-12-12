@@ -22,7 +22,7 @@ const Login: FC = () => {
     const onLogin = (data: IFormLogin) => {
         if (formError) return
 
-        request('POST', '/Auth/Local/Login', data).then((response) => {
+        request('POST', '/auth/local/login', data).then((response) => {
             if (!response.ok) {
                 dispatch(setAuthTokenError())
                 if (response.status === 401) {
