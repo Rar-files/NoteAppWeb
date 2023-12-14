@@ -1,27 +1,43 @@
+import { IAuthData } from '@/interfaces/IAuthData'
 import { IAuthState } from '@/interfaces/IAuthState'
 import { jwtDecode } from 'jwt-decode'
 import { createContext, useState } from 'react'
+import ls from 'react-secure-storage'
 
-const getEmptyAuth = (): IAuthState => {
+const getEmptyAuthState = (): IAuthState => {
     return {
         authStatus: 'UNAUTHORIZED',
-        token: '',
-        expTime: new Date().toISOString(),
+        authData: {
+            token: '',
+            expTime: new Date().toISOString(),
+        },
+    }
+}
+
+const tryGetAuthStateFromLS = (): IAuthState => {
+    const authDataLS = ls.getItem('auth-data') as IAuthData | null
+
+    if (!authDataLS) return getEmptyAuthState()
+
+    if (new Date(authDataLS.expTime) < new Date()) return getEmptyAuthState()
+
+    return {
+        authStatus: 'AUTHORIZED',
+        authData: authDataLS,
     }
 }
 
 export const AuthContext = createContext({
-    auth: getEmptyAuth(),
+    auth: getEmptyAuthState(),
     setAuthAuthorized: (token: string) => {
         token
     },
     setAuthUnauthorized: () => {},
     setAuthError: () => {},
-    trySetAuthTokenFromLS: () => {},
 })
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [auth, setAuth] = useState<IAuthState>(getEmptyAuth())
+    const [auth, setAuth] = useState<IAuthState>(tryGetAuthStateFromLS())
 
     const tokenToExpDate = (token: string) => {
         const jwtdecoded = jwtDecode(token)
@@ -30,26 +46,29 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return expDate.toISOString()
     }
 
+    const setAuthStateWithLS = (authState: IAuthState) => {
+        ls.setItem('auth-data', authState.authData)
+        setAuth(authState)
+    }
+
     const setAuthAuthorized = (token: string) => {
-        setAuth({
+        setAuthStateWithLS({
             authStatus: 'AUTHORIZED',
-            token: token,
-            expTime: tokenToExpDate(token),
+            authData: {
+                token: token,
+                expTime: tokenToExpDate(token),
+            },
         })
     }
     const setAuthUnauthorized = () => {
-        setAuth({
-            ...getEmptyAuth(),
-            authStatus: 'UNAUTHORIZED',
-        })
+        setAuthStateWithLS(getEmptyAuthState())
     }
     const setAuthError = () => {
-        setAuth({
-            ...getEmptyAuth(),
+        setAuthStateWithLS({
+            ...getEmptyAuthState(),
             authStatus: 'ERROR',
         })
     }
-    const trySetAuthTokenFromLS = () => {}
 
     return (
         <AuthContext.Provider
@@ -58,7 +77,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 setAuthAuthorized,
                 setAuthUnauthorized,
                 setAuthError,
-                trySetAuthTokenFromLS,
             }}
         >
             {children}
