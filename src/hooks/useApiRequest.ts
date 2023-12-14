@@ -1,4 +1,4 @@
-import { selectAuthState } from '@/app/reducer/authSlice'
+import { selectAuthState } from '@/reducer/authSlice'
 import { useSelector } from 'react-redux'
 
 export default function useApiRequest() {

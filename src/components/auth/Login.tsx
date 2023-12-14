@@ -1,8 +1,5 @@
-import useApiRequest from '@/app/hooks/useApiRequest'
-import {
-    setAuthTokenError,
-    setAuthTokenAuthorized,
-} from '@/app/reducer/authSlice'
+import useApiRequest from '@/hooks/useApiRequest'
+import { setAuthTokenError, setAuthTokenAuthorized } from '@/reducer/authSlice'
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'

@@ -1,4 +1,4 @@
-import { setAuthTokenUnauthorized } from '@/app/reducer/authSlice'
+import { setAuthTokenUnauthorized } from '@/reducer/authSlice'
 import { FC } from 'react'
 import { useDispatch } from 'react-redux'
 

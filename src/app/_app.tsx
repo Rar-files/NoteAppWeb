@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
 import type { AppProps } from 'next/app'
-import { wrapper } from '@/app/store'
+import { wrapper } from '@/store'
 
 const App: FC<AppProps> = ({ Component, pageProps }) => {
     const { store } = wrapper.useWrappedStore(pageProps)

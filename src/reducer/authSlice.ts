@@ -1,5 +1,4 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import { HYDRATE } from 'next-redux-wrapper'
 import { AppState } from '../store'
 import ls from 'react-secure-storage'
 import { jwtDecode } from 'jwt-decode'
@@ -83,15 +82,6 @@ export const authSlice = createSlice({
             state.authStatus = 'ERROR'
             state.token = ''
             state.expTime = setTokenToLocalStorage('').expTime
-        },
-    },
-
-    extraReducers: {
-        [HYDRATE]: (state, action) => {
-            return {
-                ...state,
-                ...action.payload.auth,
-            }
         },
     },
 })
