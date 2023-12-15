@@ -1,15 +1,12 @@
-import { setAuthTokenUnauthorized } from '@/reducer/authSlice'
-import { FC } from 'react'
-import { useDispatch } from 'react-redux'
+'use client'
+
+import { AuthContext } from '@/providers/contexts/authContextProvider'
+import { FC, useContext } from 'react'
 
 const LogoutBtn: FC = () => {
-    const dispatch = useDispatch()
+    const { setAuthUnauthorized } = useContext(AuthContext)
 
-    return (
-        <button onClick={() => dispatch(setAuthTokenUnauthorized())}>
-            Logout
-        </button>
-    )
+    return <button onClick={() => setAuthUnauthorized()}>Logout</button>
 }
 
 export default LogoutBtn

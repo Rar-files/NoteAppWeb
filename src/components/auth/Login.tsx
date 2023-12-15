@@ -1,8 +1,9 @@
+'use client'
+
 import useApiRequest from '@/hooks/useApiRequest'
-import { setAuthTokenError, setAuthTokenAuthorized } from '@/reducer/authSlice'
-import { FC, useState } from 'react'
+import { AuthContext } from '@/providers/contexts/authContextProvider'
+import { FC, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
 
 export type IFormLogin = {
     email: string
@@ -11,8 +12,8 @@ export type IFormLogin = {
 
 const Login: FC = () => {
     const [formError, setFormError] = useState('')
+    const { setAuthAuthorized, setAuthError } = useContext(AuthContext)
 
-    const dispatch = useDispatch()
     const request = useApiRequest()
     const { handleSubmit, register } = useForm<IFormLogin>()
 
@@ -21,7 +22,7 @@ const Login: FC = () => {
 
         request('POST', '/auth/local/login', data).then((response) => {
             if (!response.ok) {
-                dispatch(setAuthTokenError())
+                setAuthError()
                 if (response.status === 401) {
                     setFormError('Wrong password')
                     return
@@ -34,7 +35,7 @@ const Login: FC = () => {
             }
 
             response.json().then((data) => {
-                dispatch(setAuthTokenAuthorized(data.token))
+                setAuthAuthorized(data.token)
             })
         })
     }

@@ -1,8 +1,9 @@
+'use client'
+
 import useApiRequest from '@/hooks/useApiRequest'
-import { setAuthTokenError, setAuthTokenAuthorized } from '@/reducer/authSlice'
-import { FC, useState } from 'react'
+import { AuthContext } from '@/providers/contexts/authContextProvider'
+import { FC, useContext, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useDispatch } from 'react-redux'
 
 export type IFormSignup = {
     email: string
@@ -13,8 +14,8 @@ export type IFormSignup = {
 
 const Signup: FC = () => {
     const [userExist, setUserExist] = useState(false)
+    const { setAuthAuthorized, setAuthError } = useContext(AuthContext)
 
-    const dispatch = useDispatch()
     const request = useApiRequest()
     const { handleSubmit, register } = useForm<IFormSignup>()
 
@@ -30,13 +31,13 @@ const Signup: FC = () => {
                 }
 
                 response.json().then((data) => {
-                    dispatch(setAuthTokenAuthorized(data.token))
+                    setAuthAuthorized(data.token)
                 })
             })
             .catch((error: Error) => {
                 if (error.message === 'User with this email already exists') {
                     setUserExist(true)
-                    dispatch(setAuthTokenError())
+                    setAuthError()
                     return
                 }
             })

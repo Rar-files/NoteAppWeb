@@ -1,3 +1,5 @@
+'use client'
+
 import { IUser } from '@/interfaces/IUser'
 import { createContext, useContext, useState } from 'react'
 import { AuthContext } from './authContextProvider'
