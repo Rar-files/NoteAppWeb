@@ -1,9 +1,12 @@
-import { selectAuthState } from '@/app/reducer/authSlice'
-import { useSelector } from 'react-redux'
+import { AuthContext } from '@/providers/contexts/authContextProvider'
+import { useContext } from 'react'
 
 export default function useApiRequest() {
-    const authState = useSelector(selectAuthState)
-    const getAuthHeader = () => `Bearer ${authState.token}`
+    const { auth } = useContext(AuthContext)
+
+    if (!auth) throw new Error('AuthContext is not defined')
+
+    const getAuthHeader = () => `Bearer ${auth.authData.token}`
 
     const getBaseURL = () => {
         if (!process.env.NEXT_PUBLIC_API_URL)
