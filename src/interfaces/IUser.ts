@@ -4,3 +4,12 @@ export interface IUser {
     firstName: string
     lastName: string
 }
+
+export const getEmptyUser = (): IUser => {
+    return {
+        id: 0,
+        email: '',
+        firstName: '',
+        lastName: '',
+    }
+}

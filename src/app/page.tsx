@@ -5,14 +5,12 @@ import Login from '@/components/auth/Login'
 import LogoutBtn from '@/components/auth/LogoutBtn'
 import Signup from '@/components/auth/Signup'
 import type { NextPage } from 'next'
-import { useContext, useState } from 'react'
-import { AuthContext } from '@/providers/contexts/authContextProvider'
-import { UserContext } from '@/providers/contexts/userContextProvider'
+import { useState } from 'react'
+import useGlobalState from '@/hooks/useGlobalState'
 
 const Dashboard: NextPage = () => {
     const [showLogin, setShowLogin] = useState(false)
-    const { auth } = useContext(AuthContext)
-    const { user } = useContext(UserContext)
+    const { auth, user } = useGlobalState()
     const request = useApiRequest()
 
     const logExampleNote = () => {

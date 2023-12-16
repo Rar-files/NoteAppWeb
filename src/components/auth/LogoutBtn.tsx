@@ -1,10 +1,10 @@
 'use client'
 
-import { AuthContext } from '@/providers/contexts/authContextProvider'
-import { FC, useContext } from 'react'
+import { useAuthState } from '@/hooks/useGlobalState'
+import { FC } from 'react'
 
 const LogoutBtn: FC = () => {
-    const { setAuthUnauthorized } = useContext(AuthContext)
+    const { setAuthUnauthorized } = useAuthState()
 
     return <button onClick={() => setAuthUnauthorized()}>Logout</button>
 }

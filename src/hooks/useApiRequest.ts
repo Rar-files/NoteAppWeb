@@ -1,8 +1,7 @@
-import { AuthContext } from '@/providers/contexts/authContextProvider'
-import { useContext } from 'react'
+import { useAuthState } from './useGlobalState'
 
 export default function useApiRequest() {
-    const { auth } = useContext(AuthContext)
+    const { auth } = useAuthState()
 
     if (!auth) throw new Error('AuthContext is not defined')
 
