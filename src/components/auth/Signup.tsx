@@ -1,8 +1,8 @@
 'use client'
 
 import useApiRequest from '@/hooks/useApiRequest'
-import { AuthContext } from '@/providers/contexts/authContextProvider'
-import { FC, useContext, useState } from 'react'
+import { useAuthState } from '@/hooks/useGlobalState'
+import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 export type IFormSignup = {
@@ -14,7 +14,7 @@ export type IFormSignup = {
 
 const Signup: FC = () => {
     const [userExist, setUserExist] = useState(false)
-    const { setAuthAuthorized, setAuthError } = useContext(AuthContext)
+    const { setAuthAuthorized, setAuthError } = useAuthState()
 
     const request = useApiRequest()
     const { handleSubmit, register } = useForm<IFormSignup>()

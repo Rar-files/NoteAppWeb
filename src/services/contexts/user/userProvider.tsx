@@ -1,35 +1,23 @@
 'use client'
 
-import { IUser } from '@/interfaces/IUser'
-import { createContext, useContext, useState } from 'react'
-import { AuthContext } from './authContextProvider'
+import { IUser, getEmptyUser } from '@/interfaces/IUser'
+import { useState } from 'react'
 import useApiRequest from '@/hooks/useApiRequest'
-
-const getEmptyUser = (): IUser => {
-    return {
-        id: 0,
-        email: '',
-        firstName: '',
-        lastName: '',
-    }
-}
-
-export const UserContext = createContext({
-    user: getEmptyUser(),
-    setUser: (user: IUser) => {
-        user
-    },
-    clearUser: () => {},
-})
+import { useAuthState } from '@/hooks/useGlobalState'
+import { UserContext } from './userContext'
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
+    //State
     const [user, setUser] = useState<IUser>(getEmptyUser())
-    const { auth } = useContext(AuthContext)
-    const request = useApiRequest()
 
+    //Addicional actions
     const clearUser = () => {
         setUser(getEmptyUser())
     }
+
+    //Addicional logic
+    const { auth } = useAuthState()
+    const request = useApiRequest()
 
     if (auth.authStatus == 'AUTHORIZED' && user.id == 0) {
         request('GET', '/user/me')
@@ -52,6 +40,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
             })
     }
 
+    //Context provider
     return (
         <UserContext.Provider value={{ user, setUser, clearUser }}>
             {children}
