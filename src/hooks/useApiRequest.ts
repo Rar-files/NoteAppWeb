@@ -1,6 +1,6 @@
-import { useAuthState } from './useGlobalState'
+import { useAuthState } from './useGlobalContext'
 
-export default function useApiRequest() {
+const useApiRequest = () => {
     const { auth } = useAuthState()
 
     if (!auth) throw new Error('AuthContext is not defined')
@@ -41,3 +41,5 @@ export default function useApiRequest() {
 
     return Request
 }
+
+export { useApiRequest }

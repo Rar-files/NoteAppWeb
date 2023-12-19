@@ -38,4 +38,4 @@ const useEncryptedCookie = <T>(key: string) => {
     return { setCookie, getCookie }
 }
 
-export default useEncryptedCookie
+export { useEncryptedCookie }

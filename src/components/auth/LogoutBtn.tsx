@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuthState } from '@/hooks/useGlobalState'
+import { useAuthState } from '@/hooks/useGlobalContext'
 import { FC } from 'react'
 
 const LogoutBtn: FC = () => {
