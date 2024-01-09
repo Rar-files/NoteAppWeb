@@ -1,9 +1,11 @@
-import { useCookies } from 'next-client-cookies'
+import {
+    setCookie as setNextCookie,
+    getCookie as getNextCookie,
+} from 'cookies-next'
 import { decrypt, encrypt } from 'crypto-js/aes'
 import { enc } from 'crypto-js/'
 
 const useEncryptedCookie = <T>(key: string) => {
-    const cookies = useCookies()
     const cookieSecret = process.env.NEXT_PUBLIC_COOKIE_SECRET
 
     if (!cookieSecret)
@@ -15,14 +17,14 @@ const useEncryptedCookie = <T>(key: string) => {
             cookieSecret
         ).toString()
 
-        cookies.set(key, encryptedCookieData, {
+        setNextCookie(key, encryptedCookieData, {
             secure: true,
             sameSite: 'strict',
         })
     }
 
     const getCookie = (): T | null => {
-        const encryptedCookieData = cookies.get(key)
+        const encryptedCookieData = getNextCookie(key)
 
         if (!encryptedCookieData) return null
 

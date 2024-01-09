@@ -1,6 +1,6 @@
 import { IAuthState, getEmptyAuthState } from '@/interfaces/IAuthState'
 import { useState } from 'react'
-import { AuthContext } from '../../../services/contexts/authContext'
+import { AuthContext } from '@/services/contexts/authContext'
 import { GetAuthReducer } from '@/services/reducers/authReducer'
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {

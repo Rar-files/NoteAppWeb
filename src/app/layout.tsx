@@ -1,7 +1,8 @@
-import { Providers } from './providers'
 import type { Metadata } from 'next'
+import { Providers } from '@/services/providers'
 
-import './globals.css'
+import '@/styles/tailwind.css'
+import MenuBar from '@/components/menu-bar'
 
 export const metadata: Metadata = {
     title: 'About',
@@ -11,8 +12,13 @@ export const metadata: Metadata = {
 const RootLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <html lang="en">
-            <body>
-                <Providers>{children}</Providers>
+            <body
+                className={`bg-bg dark:bg-bg-dark text-text dark:text-text-dark`}
+            >
+                <Providers>
+                    <MenuBar />
+                    {children}
+                </Providers>
             </body>
         </html>
     )

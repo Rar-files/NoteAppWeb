@@ -2,7 +2,7 @@ import { IUser, getEmptyUser } from '@/interfaces/IUser'
 import { useState } from 'react'
 import { useApiRequest } from '@/hooks/useApiRequest'
 import { useAuthState } from '@/hooks/useGlobalContext'
-import { UserContext } from '../../../services/contexts/userContext'
+import { UserContext } from '@/services/contexts/userContext'
 import { GetUserReducer } from '@/services/reducers/userReducer'
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {

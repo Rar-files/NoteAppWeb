@@ -21,7 +21,7 @@ const useApiRequest = () => {
     }
 
     async function Request(
-        method: string,
+        method: 'GET' | 'PUT' | 'POST' | 'DELETE',
         url: string,
         data: object = {},
         headers: object = {}
