@@ -1,19 +1,13 @@
-'use client'
-
 import { IUser, getEmptyUser } from '@/interfaces/IUser'
 import { useState } from 'react'
-import useApiRequest from '@/hooks/useApiRequest'
-import { useAuthState } from '@/hooks/useGlobalState'
-import { UserContext } from './userContext'
+import { useApiRequest } from '@/hooks/useApiRequest'
+import { useAuthState } from '@/hooks/useGlobalContext'
+import { UserContext } from '@/services/contexts/userContext'
+import { GetUserReducer } from '@/services/reducers/userReducer'
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
     //State
     const [user, setUser] = useState<IUser>(getEmptyUser())
-
-    //Addicional actions
-    const clearUser = () => {
-        setUser(getEmptyUser())
-    }
 
     //Addicional logic
     const { auth } = useAuthState()
@@ -42,10 +36,10 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
     //Context provider
     return (
-        <UserContext.Provider value={{ user, setUser, clearUser }}>
+        <UserContext.Provider value={GetUserReducer({ user, setUser })}>
             {children}
         </UserContext.Provider>
     )
 }
 
-export default UserProvider
+export { UserProvider }

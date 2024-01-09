@@ -1,7 +1,7 @@
 'use client'
 
-import useApiRequest from '@/hooks/useApiRequest'
-import { useAuthState } from '@/hooks/useGlobalState'
+import { useApiRequest } from '@/hooks/useApiRequest'
+import { useAuthState } from '@/hooks/useGlobalContext'
 import { FC, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -50,6 +50,7 @@ const Signup: FC = () => {
     return (
         <form onSubmit={handleSubmit(onSignup)}>
             <input
+                className={`bg-white, dark:bg-black`}
                 type="email"
                 placeholder="Email"
                 {...register('email')}
